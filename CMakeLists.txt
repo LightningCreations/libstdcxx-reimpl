@@ -1,0 +1,6 @@
+project(stdc++)
+set(CMAKE_VERBOSE_MAKEFILE TRUE)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -v -nodefaultlibs")
+add_library(stdc++ SHARED src/cxxabi.cpp src/istream.cpp src/ios.cpp src/ios_base.cpp src/iostream.cpp src/locale.cpp src/new.cpp src/ostream.cpp src/streambuf.cpp)
+target_link_libraries(stdc++ PUBLIC c)
+set_target_properties(stdc++ PROPERTIES SOVERSION 6)
