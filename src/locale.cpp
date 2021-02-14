@@ -19,8 +19,10 @@ const char* ctype<char>::do_toupper(char *beg, const char *end) const {
 
 locale::facet::~facet() {}
 
+_Atomic_word locale::id::_S_refcount;
 size_t locale::id::_M_id() const throw() {
-    return 0; // FIXME: Stub
+    if(_M_index == 0) _M_index = ++_S_refcount;
+    return _M_index - 1;
 }
 
 locale::locale() throw() {
