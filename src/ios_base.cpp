@@ -15,7 +15,8 @@ class __libstdlcxx_cin_streambuf : public streambuf {
 };
 
 class __libstdlcxx_cout_streambuf : public streambuf {
-
+  protected:
+    virtual int overflow(int c) override;
 };
 
 class __libstdlcxx_cerr_streambuf : public streambuf {
@@ -25,6 +26,10 @@ class __libstdlcxx_cerr_streambuf : public streambuf {
 class __libstdlcxx_clog_streambuf : public streambuf {
 
 };
+
+int __libstdlcxx_cout_streambuf::overflow(int c) {
+    return (putchar(c) != EOF) ? c : EOF;
+}
 
 static __libstdlcxx_cin_streambuf cin_streambuf;
 static __libstdlcxx_cout_streambuf cout_streambuf;
