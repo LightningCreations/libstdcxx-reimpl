@@ -6,7 +6,7 @@
 extern "C" void __cxa_pure_virtual() { while(1); }
 void *__gxx_personality_v0 = NULL;
 extern "C" void *__dynamic_cast(const void *sub, const __cxxabiv1::__class_type_info *src, const __cxxabiv1::__class_type_info *dst, ptrdiff_t src2dst_offset) {
-    printf("__dynamic_cast is a stub\n");
+    if(src2dst_offset < 0) printf("__dynamic_cast hint usage is a stub\n");
     return reinterpret_cast<void*>(((uintptr_t) sub) + src2dst_offset); // I'll figure this out. Later.
 }
 
