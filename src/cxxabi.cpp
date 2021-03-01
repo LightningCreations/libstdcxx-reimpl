@@ -3,8 +3,18 @@
 #include <cstdio> // DEBUGGING
 #include <cstdlib>
 
+extern "C" int __cxa_guard_acquire(int64_t *guard_object) {
+   return reinterpret_cast<int8_t*>(guard_object)[0] != 0;
+}
+
 extern "C" void __cxa_pure_virtual() { while(1); }
+
+extern "C" void __cxa_throw_bad_array_new_length() {
+
+}
+
 void *__gxx_personality_v0 = NULL;
+
 extern "C" void *__dynamic_cast(const void *sub, const __cxxabiv1::__class_type_info *src, const __cxxabiv1::__class_type_info *dst, ptrdiff_t src2dst_offset) {
     if(src2dst_offset < 0) printf("__dynamic_cast hint usage is a stub\n");
     return reinterpret_cast<void*>(((uintptr_t) sub) + src2dst_offset); // I'll figure this out. Later.
@@ -14,6 +24,11 @@ namespace std {
 
 [[noreturn]] void __throw_bad_cast() {
     fprintf(stderr, "Bad cast\n");
+    exit(1);
+}
+
+void __throw_system_error(int) {
+    fprintf(stderr, "System error\n");
     exit(1);
 }
 
