@@ -3,6 +3,10 @@
 #include <cstdio> // DEBUGGING
 #include <cstdlib>
 
+extern "C" void __cxa_begin_catch() {
+    printf("__cxa_begin_catch is a stub\n");
+}
+
 extern "C" int __cxa_guard_acquire(int64_t *guard_object) {
    return reinterpret_cast<int8_t*>(guard_object)[0] != 0;
 }
@@ -10,7 +14,8 @@ extern "C" int __cxa_guard_acquire(int64_t *guard_object) {
 extern "C" void __cxa_pure_virtual() { while(1); }
 
 extern "C" void __cxa_throw_bad_array_new_length() {
-
+    fprintf(stderr, "Bad array new length\n");
+    exit(1);
 }
 
 void *__gxx_personality_v0 = NULL;
@@ -22,13 +27,28 @@ extern "C" void *__dynamic_cast(const void *sub, const __cxxabiv1::__class_type_
 
 namespace std {
 
-[[noreturn]] void __throw_bad_cast() {
+void __throw_bad_alloc() {
+    fprintf(stderr, "Bad alloc\n");
+    exit(1);
+}
+
+void __throw_bad_cast() {
     fprintf(stderr, "Bad cast\n");
+    exit(1);
+}
+
+void __throw_logic_error(const char*) {
+    fprintf(stderr, "Logic error\n");
     exit(1);
 }
 
 void __throw_system_error(int) {
     fprintf(stderr, "System error\n");
+    exit(1);
+}
+
+void __throw_out_of_range_fmt(const char*, ...) {
+    fprintf(stderr, "Out of range format\n");
     exit(1);
 }
 
@@ -85,6 +105,30 @@ bool __class_type_info::__do_upcast(const __class_type_info *__dst, const void *
 }
 
 __forced_unwind::~__forced_unwind() throw() {}
+
+__function_type_info::~__function_type_info() {}
+
+bool __function_type_info::__is_function_p() const {
+    return true;
+}
+
+__pbase_type_info::~__pbase_type_info() {}
+
+bool __pbase_type_info::__do_catch(const std::type_info *__thr_type, void **__thr_obj, unsigned int __outer) const {
+    printf("__pbase_type_info::__do_catch(const type_info*, void**, unsigned) is a stub\n");
+    return false; // Let's hope we never need this :)
+}
+
+__pointer_type_info::~__pointer_type_info() {}
+
+bool __pointer_type_info::__is_pointer_p() const {
+    return true;
+}
+
+bool __pointer_type_info::__pointer_catch(const __pbase_type_info *__thr_type, void **__thr_obj, unsigned __outer) const {
+    printf("__pointer_type_info::__pointer_catch(const __pbase_type_info*, void**, unsigned) is a stub\n");
+    return false; // Let's hope we never need this :)
+}
 
 __si_class_type_info::~__si_class_type_info() {}
 

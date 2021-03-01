@@ -17,6 +17,10 @@ void operator delete(void *ptr, size_t sz) {
     free(ptr);
 }
 
+void operator delete[](void *ptr, size_t sz) {
+    free(ptr);
+}
+
 namespace std {
 
 bad_alloc::~bad_alloc() {}
@@ -24,5 +28,7 @@ bad_alloc::~bad_alloc() {}
 const char* bad_alloc::what() const {
     return "Bad allocation";
 }
+
+const nothrow_t nothrow;
 
 }
