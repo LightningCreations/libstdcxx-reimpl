@@ -2,20 +2,39 @@
 #include <cstdint>
 #include <cstdio> // DEBUGGING
 #include <cstdlib>
+#include <exception>
 
-extern "C" void __cxa_begin_catch() {
+extern "C" void* __cxa_allocate_exception(size_t thrown_size) {
+    void *result = malloc(thrown_size);
+    if(!result) std::terminate();
+    return result;
+}
+
+extern "C" void* __cxa_begin_catch(void *exception_object) {
     printf("__cxa_begin_catch is a stub\n");
+    return exception_object;
 }
 
-extern "C" int __cxa_guard_acquire(int64_t *guard_object) {
-   return reinterpret_cast<int8_t*>(guard_object)[0] != 0;
+extern "C" void __cxa_guard_abort(uint64_t*) {
+    printf("__cxa_guart_abort is a stub\n");
 }
 
-extern "C" void __cxa_pure_virtual() { while(1); }
+extern "C" int __cxa_guard_acquire(uint64_t *guard_object) {
+    return reinterpret_cast<uint8_t*>(guard_object)[0] != 0;
+}
+
+extern "C" void __cxa_init_primary_exception() {
+    printf("__cxa_init_primary_exception is a stub\n");
+}
+
+extern "C" void __cxa_pure_virtual() {
+    fprintf(stderr, "Pure virtual function called\n");
+    std::terminate();
+}
 
 extern "C" void __cxa_throw_bad_array_new_length() {
     fprintf(stderr, "Bad array new length\n");
-    exit(1);
+    std::terminate();
 }
 
 void *__gxx_personality_v0 = NULL;
@@ -29,27 +48,41 @@ namespace std {
 
 void __throw_bad_alloc() {
     fprintf(stderr, "Bad alloc\n");
-    exit(1);
+    std::terminate();
 }
 
 void __throw_bad_cast() {
     fprintf(stderr, "Bad cast\n");
-    exit(1);
+    std::terminate();
+}
+
+void __throw_invalid_argument(const char*) {
+    fprintf(stderr, "Invalid argument\n");
+    std::terminate();
 }
 
 void __throw_logic_error(const char*) {
     fprintf(stderr, "Logic error\n");
-    exit(1);
+    std::terminate();
 }
 
 void __throw_system_error(int) {
     fprintf(stderr, "System error\n");
-    exit(1);
+    std::terminate();
 }
 
 void __throw_out_of_range_fmt(const char*, ...) {
     fprintf(stderr, "Out of range format\n");
-    exit(1);
+    std::terminate();
+}
+
+size_t _Hash_bytes(const void *ptr, size_t len, size_t seed) {
+    size_t result = seed + 0x959524864321F0DCL; // Numbers off the top of my head. Should be replaced by PRNG
+    for(size_t i = 0; i < len; i++) {
+        result += reinterpret_cast<const uint8_t*>(ptr)[i];
+        result *= 0xCD0F123468425959; // Reverse of ^. Not mathematically sound
+    }
+    return result;
 }
 
 type_info::~type_info() {
