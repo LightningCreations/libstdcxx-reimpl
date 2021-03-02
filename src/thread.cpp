@@ -13,4 +13,6 @@ void condition_variable::wait(std::unique_lock<std::mutex> &lock) {}
 
 thread::_State::~_State() {}
 
+void thread::join() {}
+
 }

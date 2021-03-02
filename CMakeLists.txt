@@ -2,7 +2,7 @@ project(stdc++)
 cmake_minimum_required(VERSION 3.1.9)
 set(CMAKE_VERBOSE_MAKEFILE TRUE)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -nodefaultlibs")
-add_library(stdc++ SHARED src/cxxabi.cpp src/exception.cpp src/future.cpp src/istream.cpp src/ios.cpp src/ios_base.cpp src/iostream.cpp src/locale.cpp src/memory.cpp src/mutex.cpp src/new.cpp src/ostream.cpp src/sstream.cpp src/stdexcept.cpp src/streambuf.cpp src/string.cpp src/system_error.cpp src/thread.cpp)
+add_library(stdc++ SHARED src/cxxabi.cpp src/exception.cpp src/future.cpp src/istream.cpp src/ios.cpp src/ios_base.cpp src/iostream.cpp src/list.cpp src/locale.cpp src/memory.cpp src/mutex.cpp src/new.cpp src/ostream.cpp src/random.cpp src/sstream.cpp src/stdexcept.cpp src/stl_tree.cpp src/streambuf.cpp src/string.cpp src/system_error.cpp src/thread.cpp)
 target_link_libraries(stdc++ PUBLIC c)
 set_target_properties(stdc++ PROPERTIES SOVERSION 6)
 
