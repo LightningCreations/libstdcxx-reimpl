@@ -12,19 +12,21 @@ extern "C" void* __cxa_allocate_exception(size_t thrown_size) {
 
 extern "C" void* __cxa_begin_catch(void *exception_object) {
     printf("__cxa_begin_catch is a stub\n");
-    return exception_object;
+    std::terminate();
 }
 
-extern "C" void __cxa_guard_abort(uint64_t*) {
+extern "C" void __cxa_guard_abort(int64_t*) {
     printf("__cxa_guart_abort is a stub\n");
+    std::terminate();
 }
 
-extern "C" int __cxa_guard_acquire(uint64_t *guard_object) {
+extern "C" int __cxa_guard_acquire(int64_t *guard_object) {
     return reinterpret_cast<uint8_t*>(guard_object)[0] != 0;
 }
 
-extern "C" void __cxa_init_primary_exception() {
+extern "C" __cxxabiv1::__cxa_refcounted_exception* __cxa_init_primary_exception(void *object, std::type_info *tinfo, void (*dest)(void*)) {
     printf("__cxa_init_primary_exception is a stub\n");
+    std::terminate();
 }
 
 extern "C" void __cxa_pure_virtual() {
@@ -40,7 +42,7 @@ extern "C" void __cxa_throw_bad_array_new_length() {
 void *__gxx_personality_v0 = NULL;
 
 extern "C" void *__dynamic_cast(const void *sub, const __cxxabiv1::__class_type_info *src, const __cxxabiv1::__class_type_info *dst, ptrdiff_t src2dst_offset) {
-    if(src2dst_offset < 0) printf("__dynamic_cast hint usage is a stub\n");
+    if(src2dst_offset < 0) { printf("__dynamic_cast hint usage is a stub\n"); std::terminate(); }
     return reinterpret_cast<void*>(((uintptr_t) sub) + src2dst_offset); // I'll figure this out. Later.
 }
 

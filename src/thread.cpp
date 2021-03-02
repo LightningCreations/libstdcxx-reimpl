@@ -3,13 +3,13 @@
 
 namespace std {
 
-condition_variable::condition_variable() {}
+condition_variable::condition_variable() noexcept {}
 
-condition_variable::~condition_variable() {}
+condition_variable::~condition_variable() noexcept {}
 
 void condition_variable::notify_all() noexcept {}
 
-void condition_variable::wait(std::unique_lock<std::mutex> &lock) {}
+void condition_variable::wait(std::unique_lock<std::mutex> &lock) noexcept {}
 
 thread::_State::~_State() {}
 

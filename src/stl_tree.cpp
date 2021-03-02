@@ -3,9 +3,9 @@
 
 namespace std {
 
-_Rb_tree_node_base* _Rb_tree_decrement(_Rb_tree_node_base *x) {
+_Rb_tree_node_base* _Rb_tree_decrement(_Rb_tree_node_base *x) throw() {
     printf("_Rb_tree_decrement(_Rb_tree_node_base*) is a stub\n");
-    return x;
+    terminate();
 }
 
 }
