@@ -1,5 +1,6 @@
 #include <bits/stl_tree.h> // Should be hpp smh
 #include <cstdio>
+#include <exception>
 
 namespace std {
 

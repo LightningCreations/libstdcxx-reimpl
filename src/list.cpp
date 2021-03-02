@@ -1,5 +1,6 @@
 #include <list>
 #include <cstdio>
+#include <exception>
 
 namespace std {
 
