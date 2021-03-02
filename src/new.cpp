@@ -9,11 +9,11 @@ void* operator new[](size_t count) {
     return malloc(count);
 }
 
-void operator delete(void *ptr) {
+void operator delete(void *ptr) noexcept {
     free(ptr);
 }
 
-void operator delete[](void *ptr) {
+void operator delete[](void *ptr) noexcept {
     free(ptr);
 }
 
@@ -27,9 +27,9 @@ void operator delete[](void *ptr, size_t sz) {
 
 namespace std {
 
-bad_alloc::~bad_alloc() {}
+bad_alloc::~bad_alloc() noexcept {}
 
-const char* bad_alloc::what() const {
+const char* bad_alloc::what() const noexcept {
     return "Bad allocation";
 }
 
