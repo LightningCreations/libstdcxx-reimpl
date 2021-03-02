@@ -24,6 +24,11 @@ extern "C" int __cxa_guard_acquire(int64_t *guard_object) {
     return reinterpret_cast<uint8_t*>(guard_object)[0] != 0;
 }
 
+extern "C" void __cxa_guard_release(int64_t*) {
+    printf("__cxa_guart_release is a stub\n");
+    std::terminate();
+}
+
 extern "C" __cxxabiv1::__cxa_refcounted_exception* __cxa_init_primary_exception(void *object, std::type_info *tinfo, void (*dest)(void*)) {
     printf("__cxa_init_primary_exception is a stub\n");
     std::terminate();
