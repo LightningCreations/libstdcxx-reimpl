@@ -1,6 +1,14 @@
+#include <cstdlib>
 #include <exception>
 
 namespace std {
+
+static terminate_handler current_terminate_handler = &abort;
+
+void terminate() noexcept {
+    current_terminate_handler();
+    exit(1); // Something has gone horribly wrong
+}
 
 exception::~exception() noexcept {}
 

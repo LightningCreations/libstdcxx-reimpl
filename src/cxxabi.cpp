@@ -39,6 +39,11 @@ extern "C" void __cxa_pure_virtual() {
     std::terminate();
 }
 
+extern "C" void __cxa_throw(void*, std::type_info*, void(*)(void*)) {
+    fprintf(stderr, "__cxa_throw is a stub\n");
+    std::terminate();
+}
+
 extern "C" void __cxa_throw_bad_array_new_length() {
     fprintf(stderr, "Bad array new length\n");
     std::terminate();
