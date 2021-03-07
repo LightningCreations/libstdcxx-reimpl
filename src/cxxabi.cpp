@@ -4,57 +4,7 @@
 #include <cstdlib>
 #include <exception>
 
-extern "C" void* __cxa_allocate_exception(size_t thrown_size) {
-    void *result = malloc(thrown_size);
-    if(!result) std::terminate();
-    return result;
-}
-
-extern "C" void* __cxa_begin_catch(void *exception_object) {
-    printf("__cxa_begin_catch is a stub\n");
-    std::terminate();
-}
-
-extern "C" void __cxa_guard_abort(int64_t*) {
-    printf("__cxa_guart_abort is a stub\n");
-    std::terminate();
-}
-
-extern "C" int __cxa_guard_acquire(int64_t *guard_object) {
-    return reinterpret_cast<uint8_t*>(guard_object)[0] != 0;
-}
-
-extern "C" void __cxa_guard_release(int64_t*) {
-    printf("__cxa_guart_release is a stub\n");
-    std::terminate();
-}
-
-extern "C" __cxxabiv1::__cxa_refcounted_exception* __cxa_init_primary_exception(void *object, std::type_info *tinfo, void (*dest)(void*)) {
-    printf("__cxa_init_primary_exception is a stub\n");
-    std::terminate();
-}
-
-extern "C" void __cxa_pure_virtual() {
-    fprintf(stderr, "Pure virtual function called\n");
-    std::terminate();
-}
-
-extern "C" void __cxa_throw(void*, std::type_info*, void(*)(void*)) {
-    fprintf(stderr, "__cxa_throw is a stub\n");
-    std::terminate();
-}
-
-extern "C" void __cxa_throw_bad_array_new_length() {
-    fprintf(stderr, "Bad array new length\n");
-    std::terminate();
-}
-
 void *__gxx_personality_v0 = NULL;
-
-extern "C" void *__dynamic_cast(const void *sub, const __cxxabiv1::__class_type_info *src, const __cxxabiv1::__class_type_info *dst, ptrdiff_t src2dst_offset) {
-    if(src2dst_offset < 0) { printf("__dynamic_cast hint usage is a stub\n"); std::terminate(); }
-    return reinterpret_cast<void*>(((uintptr_t) sub) + src2dst_offset); // I'll figure this out. Later.
-}
 
 namespace std {
 
@@ -121,6 +71,89 @@ bool type_info::__is_pointer_p() const {
 } // namespace std
 
 namespace __cxxabiv1 {
+
+static thread_local __cxa_eh_globals *__cxa_globals;
+
+struct {
+    std::type_info *exception_type;
+    void(*exception_destructor)(void*);
+//    std::unexpected_handler unexpectedHandler;
+    void *unexpectedHander; // std::unexpected was removed in C++17
+    std::terminate_handler terminateHandler;
+    int handlerCount;
+    int handlerSwitchValue;
+    const char *actionRecord;
+    const char *languageSpecificData;
+    void *catchTemp;
+    void *adjustedPtr;
+    _Unwind_Exception unwindHeader;
+} __cxa_exception; // From the Itanium C++ Exception Handling ABI specification
+
+extern "C" void* __cxa_allocate_exception(size_t thrown_size) {
+    void *result = malloc(thrown_size);
+    if(!result) std::terminate();
+    return result;
+}
+
+extern "C" void* __cxa_begin_catch(void *exception_object) {
+    printf("__cxa_begin_catch is a stub\n");
+    std::terminate();
+}
+
+extern "C" __cxa_eh_globals* __cxa_get_globals() {
+    return __cxa_globals;
+}
+
+extern "C" void __cxa_guard_abort(int64_t*) {
+    printf("__cxa_guart_abort is a stub\n");
+    std::terminate();
+}
+
+extern "C" int __cxa_guard_acquire(int64_t *guard_object) {
+    return reinterpret_cast<uint8_t*>(guard_object)[0] != 0;
+}
+
+extern "C" void __cxa_guard_release(int64_t*) {
+    printf("__cxa_guard_release is a stub\n");
+    std::terminate();
+}
+
+extern "C" __cxa_refcounted_exception* __cxa_init_primary_exception(void *object, std::type_info *tinfo, void (*dest)(void*)) {
+    printf("__cxa_init_primary_exception is a stub\nAlso, this impl doesn't intentionally use it.\n");
+    std::terminate();
+}
+
+extern "C" void __cxa_pure_virtual() {
+    fprintf(stderr, "Pure virtual function called\n");
+    std::terminate();
+}
+
+extern "C" void __cxa_throw(void *thrown_exception, std::type_info *tinfo, void(*dest)(void*)) {
+    __cxa_exception *hdr = (((__cxa_exception*) thrown_exception) - 1);
+    // Save the current unexpected_handler and terminate_handler in the __cxa_exception header.
+    hdr->unexpectedHandler = nullptr;
+    hdr->terminateHandler = std::get_terminate();
+    // Save the tinfo and dest arguments in the __cxa_exception header.
+    hdr->exceptionType = tinfo;
+    hdr->exceptionDestructor = dest;
+    // Set the exception_class field in the unwind header. This is a 64-bit value representing the ASCII string "XXXXC++\0", where "XXXX" is a vendor-dependent string. That is, for implementations conforming to this ABI, the low-order 4 bytes of this 64-bit value will be "C++\0".
+    hdr->unwindHeader->exception_class = 0x4C472B2B432B2B00; // "LG++C++\0"; LG++ for LC implementation of GNU C++ libraries
+    // Increment the uncaught_exception flag.
+    __cxa_eh_globals *globals = __cxa_get_globals();
+    globals->uncaughtExceptions++;
+    // Call _Unwind_RaiseException in the system unwind library, Its argument is the pointer to the thrown exception, which __cxa_throw itself received as an argument.
+    _Unwind_RaiseException(thrown_exception);
+}
+
+extern "C" void __cxa_throw_bad_array_new_length() {
+    fprintf(stderr, "Bad array new length\n");
+    std::terminate();
+}
+
+extern "C" void *__dynamic_cast(const void *sub, const __class_type_info *src, const __class_type_info *dst, ptrdiff_t src2dst_offset) {
+    if(src2dst_offset < 0) { printf("__dynamic_cast hint usage is a stub\n"); std::terminate(); }
+    return reinterpret_cast<void*>(((uintptr_t) sub) + src2dst_offset); // I'll figure this out. Later.
+}
 
 __class_type_info::~__class_type_info() {}
 
