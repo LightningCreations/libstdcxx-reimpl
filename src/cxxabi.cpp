@@ -3,6 +3,7 @@
 #include <cstdio> // DEBUGGING
 #include <cstdlib>
 #include <exception>
+#include <unwind.h>
 
 void *__gxx_personality_v0 = NULL;
 
@@ -74,11 +75,11 @@ namespace __cxxabiv1 {
 
 static thread_local __cxa_eh_globals *__cxa_globals;
 
-struct {
-    std::type_info *exception_type;
-    void(*exception_destructor)(void*);
+struct __cxa_exception {
+    std::type_info *exceptionType;
+    void(*exceptionDestructor)(void*);
 //    std::unexpected_handler unexpectedHandler;
-    void *unexpectedHander; // std::unexpected was removed in C++17
+    void *unexpectedHandler; // std::unexpected was removed in C++17
     std::terminate_handler terminateHandler;
     int handlerCount;
     int handlerSwitchValue;
@@ -87,7 +88,12 @@ struct {
     void *catchTemp;
     void *adjustedPtr;
     _Unwind_Exception unwindHeader;
-} __cxa_exception; // From the Itanium C++ Exception Handling ABI specification
+}; // From the Itanium C++ Exception Handling ABI specification
+
+struct __cxa_eh_globals {
+    __cxa_exception *caughtExceptions;
+    unsigned int uncaughtExceptions;
+};
 
 extern "C" void* __cxa_allocate_exception(size_t thrown_size) {
     void *result = malloc(thrown_size);
@@ -137,12 +143,13 @@ extern "C" void __cxa_throw(void *thrown_exception, std::type_info *tinfo, void(
     hdr->exceptionType = tinfo;
     hdr->exceptionDestructor = dest;
     // Set the exception_class field in the unwind header. This is a 64-bit value representing the ASCII string "XXXXC++\0", where "XXXX" is a vendor-dependent string. That is, for implementations conforming to this ABI, the low-order 4 bytes of this 64-bit value will be "C++\0".
-    hdr->unwindHeader->exception_class = 0x4C472B2B432B2B00; // "LG++C++\0"; LG++ for LC implementation of GNU C++ libraries
+    hdr->unwindHeader.exception_class = 0x4C472B2B432B2B00; // "LG++C++\0"; LG++ for LC implementation of GNU C++ libraries
     // Increment the uncaught_exception flag.
     __cxa_eh_globals *globals = __cxa_get_globals();
     globals->uncaughtExceptions++;
     // Call _Unwind_RaiseException in the system unwind library, Its argument is the pointer to the thrown exception, which __cxa_throw itself received as an argument.
-    _Unwind_RaiseException(thrown_exception);
+    _Unwind_RaiseException((_Unwind_Exception*) thrown_exception);
+    while(1); // Something has gone dreadfully wrong.
 }
 
 extern "C" void __cxa_throw_bad_array_new_length() {
