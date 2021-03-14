@@ -10,6 +10,10 @@ void terminate() noexcept {
     exit(1); // Something has gone horribly wrong
 }
 
+terminate_handler get_terminate() noexcept {
+    return current_terminate_handler;
+}
+
 exception::~exception() noexcept {}
 
 const char* exception::what() const noexcept {
