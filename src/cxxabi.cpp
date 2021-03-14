@@ -5,8 +5,6 @@
 #include <exception>
 #include <unwind.h>
 
-void *__gxx_personality_v0 = NULL;
-
 namespace std {
 
 void __throw_bad_alloc() {
@@ -73,8 +71,6 @@ bool type_info::__is_pointer_p() const {
 
 namespace __cxxabiv1 {
 
-static thread_local __cxa_eh_globals *__cxa_globals;
-
 struct __cxa_exception {
     std::type_info *exceptionType;
     void(*exceptionDestructor)(void*);
@@ -94,6 +90,8 @@ struct __cxa_eh_globals {
     __cxa_exception *caughtExceptions;
     unsigned int uncaughtExceptions;
 };
+
+static thread_local __cxa_eh_globals *__cxa_globals = new __cxa_eh_globals{nullptr, 0};
 
 extern "C" void* __cxa_allocate_exception(size_t thrown_size) {
     void *result = malloc(thrown_size);
@@ -247,6 +245,15 @@ __vmi_class_type_info::__sub_kind __vmi_class_type_info::__do_find_public_src(pt
 bool __vmi_class_type_info::__do_upcast(const __class_type_info *__dst, const void *__obj, __upcast_result &__restrict __result) const {
     printf("__vmi_class_type_info::__do_upcast(const __class_type_info*, const void*, __upcast_result &restrict) is a stub\n");
     return false; // I'll figure out how this is supposed to work later
+}
+
+extern "C" _Unwind_Reason_Code __gxx_personality_v0(int version, _Unwind_Action actions, _Unwind_Exception_Class exception_class, struct _Unwind_Exception *ue_header, struct _Unwind_Context *context) {
+    if(actions & _UA_SEARCH_PHASE) {
+        
+    } else if(actions & _UA_CLEANUP_PHASE) {
+        
+    }
+    return _URC_CONTINUE_UNWIND;
 }
 
 } // namespace abi
