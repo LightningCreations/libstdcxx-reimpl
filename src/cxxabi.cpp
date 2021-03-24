@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <exception>
 #include <unwind.h>
+#include <vector>
 
 namespace std {
 
@@ -147,7 +148,8 @@ extern "C" void __cxa_throw(void *thrown_exception, std::type_info *tinfo, void(
     globals->uncaughtExceptions++;
     // Call _Unwind_RaiseException in the system unwind library, Its argument is the pointer to the thrown exception, which __cxa_throw itself received as an argument.
     _Unwind_RaiseException((_Unwind_Exception*) thrown_exception);
-    while(1); // Something has gone dreadfully wrong.
+    fprintf(stderr, "Exception not handled, terminating\n");
+    abort(); // Something has gone dreadfully wrong.
 }
 
 extern "C" void __cxa_throw_bad_array_new_length() {
@@ -247,7 +249,56 @@ bool __vmi_class_type_info::__do_upcast(const __class_type_info *__dst, const vo
     return false; // I'll figure out how this is supposed to work later
 }
 
+static uint64_t __readuleb128(uint8_t* &data) {
+    uint8_t cur_byte;
+    uint64_t result = 0;
+    uint8_t shift = 0;
+    do {
+        cur_byte = *(data++);
+        result |= uint64_t(cur_byte) << shift;
+        shift += 7;
+    } while(cur_byte & 0x80);
+    return result;
+}
+
+struct __lsda_call_site {
+    void *start;
+    void *end;
+    void *landing_pad;
+    uint8_t actions;
+};
+
+class __lsda {
+  private:
+    uint8_t field1;
+    uint8_t field2;
+    uint8_t field3;
+    std::vector<__lsda_call_site> call_sites; // Are you saying you have something better?
+  public:
+    __lsda(uint8_t *data);
+};
+
+__lsda::__lsda(uint8_t *data) {
+    field1 = *(data++);
+    field2 = *(data++);
+    size_t lsda_size = __readuleb128(data);
+    field3 = *(data++);
+    size_t call_site_table_size = __readuleb128(data);
+    uint8_t *call_site_table_end = call_site_table_size + data;
+    while(data < call_site_table_end) {
+        call_sites.push_back(
+            __lsda_call_site {
+                reinterpret_cast<void*>(__readuleb128(data)),
+                reinterpret_cast<void*>(__readuleb128(data)),
+                reinterpret_cast<void*>(__readuleb128(data)),
+                *(data++)
+            }
+        );
+    }
+}
+
 extern "C" _Unwind_Reason_Code __gxx_personality_v0(int version, _Unwind_Action actions, _Unwind_Exception_Class exception_class, struct _Unwind_Exception *ue_header, struct _Unwind_Context *context) {
+    __lsda lsda(static_cast<uint8_t*>(_Unwind_GetLanguageSpecificData(context)));
     if(actions & _UA_SEARCH_PHASE) {
         
     } else if(actions & _UA_CLEANUP_PHASE) {
