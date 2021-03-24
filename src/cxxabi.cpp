@@ -264,7 +264,7 @@ static uint64_t __readuleb128(uint8_t* &data) {
 struct __lsda_call_site {
     void *start;
     void *end;
-    void *landing_pad;
+    ptrdiff_t landing_pad;
     uint8_t actions;
 };
 
@@ -273,8 +273,8 @@ class __lsda {
     uint8_t field1;
     uint8_t field2;
     uint8_t field3;
-    std::vector<__lsda_call_site> call_sites; // Are you saying you have something better?
   public:
+    std::vector<__lsda_call_site> call_sites; // Are you saying you have something better?
     __lsda(uint8_t *data);
 };
 
@@ -290,7 +290,7 @@ __lsda::__lsda(uint8_t *data) {
             __lsda_call_site {
                 reinterpret_cast<void*>(__readuleb128(data)),
                 reinterpret_cast<void*>(__readuleb128(data)),
-                reinterpret_cast<void*>(__readuleb128(data)),
+                static_cast<ptrdiff_t>(__readuleb128(data)),
                 *(data++)
             }
         );
@@ -299,10 +299,11 @@ __lsda::__lsda(uint8_t *data) {
 
 extern "C" _Unwind_Reason_Code __gxx_personality_v0(int version, _Unwind_Action actions, _Unwind_Exception_Class exception_class, struct _Unwind_Exception *ue_header, struct _Unwind_Context *context) {
     __lsda lsda(static_cast<uint8_t*>(_Unwind_GetLanguageSpecificData(context)));
+    
     if(actions & _UA_SEARCH_PHASE) {
-        
+        return _URC_HANDLER_FOUND;
     } else if(actions & _UA_CLEANUP_PHASE) {
-        
+        _Unwind_SetIP(context, _Unwind_GetRegionStart(context) + lsda.call_sites[0].landing_pad);
     }
     return _URC_CONTINUE_UNWIND;
 }
