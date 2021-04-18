@@ -36,6 +36,7 @@ locale::locale() throw() {
 }
 
 locale::~locale() throw() {
+    delete _M_impl;
 }
 
 const char *__num_base::_S_atoms_in;
@@ -52,6 +53,11 @@ locale::_Impl::_Impl(size_t _a) throw() {
     _M_facets = new const facet*[1];
     _M_facets[0] = new std::ctype<char>(); // No other references exist to our knowledge
     _M_facets_size = 1; // Temp
+}
+
+locale::_Impl::~_Impl() {
+    delete _M_facets[0];
+    delete[] _M_facets;
 }
 
 template bool has_facet<ctype<char>>(const std::locale&) throw();
