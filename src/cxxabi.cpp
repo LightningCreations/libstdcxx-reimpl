@@ -101,9 +101,10 @@ extern "C" void* __cxa_allocate_exception(size_t thrown_size) {
 }
 
 extern "C" void* __cxa_begin_catch(void *exception_object) {
-    printf("__cxa_begin_catch is a stub\n");
-    std::terminate();
+    return exception_object;
 }
+
+extern "C" void __cxa_end_catch() {}
 
 extern "C" __cxa_eh_globals* __cxa_get_globals() {
     return __cxa_globals;
@@ -299,11 +300,11 @@ __lsda::__lsda(uint8_t *data) {
 
 extern "C" _Unwind_Reason_Code __gxx_personality_v0(int version, _Unwind_Action actions, _Unwind_Exception_Class exception_class, struct _Unwind_Exception *ue_header, struct _Unwind_Context *context) {
     __lsda lsda(static_cast<uint8_t*>(_Unwind_GetLanguageSpecificData(context)));
-    
     if(actions & _UA_SEARCH_PHASE) {
         return _URC_HANDLER_FOUND;
     } else if(actions & _UA_CLEANUP_PHASE) {
         _Unwind_SetIP(context, _Unwind_GetRegionStart(context) + lsda.call_sites[0].landing_pad);
+        return _URC_INSTALL_CONTEXT;
     }
     return _URC_CONTINUE_UNWIND;
 }
