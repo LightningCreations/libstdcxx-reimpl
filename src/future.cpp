@@ -7,6 +7,8 @@ __future_base::_Result_base::_Result_base() {}
 
 __future_base::_Result_base::~_Result_base() {}
 
+void __future_base::_State_baseV2::_Make_ready::_M_set() {}
+
 future_error::~future_error() noexcept {}
 
 const char* future_error::what() const noexcept {

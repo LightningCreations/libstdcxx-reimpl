@@ -105,9 +105,9 @@ struct __cxa_eh_globals {
 static thread_local __cxa_eh_globals *__cxa_globals = new __cxa_eh_globals{nullptr, 0};
 
 extern "C" void* __cxa_allocate_exception(size_t thrown_size) {
-    void *result = malloc(thrown_size);
+    __cxa_exception *result = (__cxa_exception*) malloc(thrown_size+sizeof(__cxa_exception));
     if(!result) std::terminate();
-    return result;
+    return static_cast<void*>(result+1);
 }
 
 extern "C" void* __cxa_begin_catch(void *exception_object) {
@@ -145,7 +145,7 @@ extern "C" void __cxa_pure_virtual() {
 }
 
 extern "C" void __cxa_throw(void *thrown_exception, std::type_info *tinfo, void(*dest)(void*)) {
-    __cxa_exception *hdr = (((__cxa_exception*) thrown_exception) - 1);
+    __cxa_exception *hdr = static_cast<__cxa_exception*>(thrown_exception) - 1;
     // Save the current unexpected_handler and terminate_handler in the __cxa_exception header.
     hdr->unexpectedHandler = nullptr;
     hdr->terminateHandler = std::get_terminate();
