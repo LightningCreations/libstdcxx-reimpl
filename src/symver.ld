@@ -98,3 +98,8 @@ GLIBCXX_3.4.22 {
   global:
     _ZNSt6thread15_M_start_threadESt10unique_ptrINS_6_StateESt14default_deleteIS1_EEPFvvE;
 };
+
+GLIBCXX_3.4.26 {
+  global:
+    _ZNSt7__cxx1119basic_ostringstreamIcSt11char_traitsIcESaIcEEC1Ev;
+};

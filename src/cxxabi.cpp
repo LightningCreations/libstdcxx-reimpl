@@ -23,8 +23,18 @@ void __throw_invalid_argument(const char*) {
     std::terminate();
 }
 
+void __throw_length_error(const char*) {
+    fprintf(stderr, "Length error\n");
+    std::terminate();
+}
+
 void __throw_logic_error(const char*) {
     fprintf(stderr, "Logic error\n");
+    std::terminate();
+}
+
+void __throw_out_of_range(const char*) {
+    fprintf(stderr, "Out of range\n");
     std::terminate();
 }
 
