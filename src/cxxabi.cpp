@@ -3,6 +3,7 @@
 #include <cstdio> // DEBUGGING
 #include <cstdlib>
 #include <exception>
+#include <typeinfo>
 #include <unwind.h>
 #include <vector>
 
@@ -168,9 +169,26 @@ extern "C" void __cxa_throw_bad_array_new_length() {
     std::terminate();
 }
 
+inline const __class_type_info* get_type_info_from_pointer(const void *ptr) {
+    return (*static_cast<const __class_type_info **const *>(ptr))[-1];
+}
+
+inline const void* get_subclass_from_pointer(const void *ptr) {
+    return reinterpret_cast<const void*>(reinterpret_cast<uintptr_t>(ptr) + (*static_cast<const ptrdiff_t *const *>(ptr))[-2]);
+}
+
 extern "C" void *__dynamic_cast(const void *sub, const __class_type_info *src, const __class_type_info *dst, ptrdiff_t src2dst_offset) {
-    if(src2dst_offset < 0) { printf("__dynamic_cast hint usage is a stub\n"); std::terminate(); }
-    return reinterpret_cast<void*>(((uintptr_t) sub) + src2dst_offset); // I'll figure this out. Later.
+    if(src2dst_offset >= 0) {
+        return reinterpret_cast<void*>(((uintptr_t) sub) + src2dst_offset);
+    }
+    const __class_type_info *true_ti = get_type_info_from_pointer(sub);
+    if(*get_type_info_from_pointer(true_ti) == typeid(__si_class_type_info)) return nullptr;
+    const __vmi_class_type_info *full_true_ti = (const __vmi_class_type_info*) get_subclass_from_pointer(true_ti);
+    for(unsigned int i = 0; i < full_true_ti->__base_count; i++) {
+        if(full_true_ti->__base_info[i].__base_type == dst)
+            return reinterpret_cast<void*>(((uintptr_t) sub) + (full_true_ti->__base_info[i].__offset_flags & ~0xFF));
+    }
+    return nullptr;
 }
 
 __class_type_info::~__class_type_info() {}
@@ -206,6 +224,10 @@ __function_type_info::~__function_type_info() {}
 
 bool __function_type_info::__is_function_p() const {
     return true;
+}
+
+// This emits all type_info for fundamental types. Because why not?
+__fundamental_type_info::~__fundamental_type_info () {
 }
 
 __pbase_type_info::~__pbase_type_info() {}
