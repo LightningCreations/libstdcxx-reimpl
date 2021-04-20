@@ -41,25 +41,32 @@ ostream cout(&cout_streambuf);
 ostream cerr(&cerr_streambuf);
 ostream clog(&clog_streambuf);
 
+class __libstdlcxx_Init {
+  public:
+    __libstdlcxx_Init();
+    ~__libstdlcxx_Init();
+};
+
+__libstdlcxx_Init::__libstdlcxx_Init() {
+    new (&cin) istream(&cin_streambuf);
+    new (&cout) ostream(&cout_streambuf);
+    new (&cerr) ostream(&cerr_streambuf);
+    new (&clog) ostream(&clog_streambuf);
+    cin.tie(&cout);
+    cerr.tie(&cout);
+}
+
+__libstdlcxx_Init::~__libstdlcxx_Init() {
+    std::cout.flush();
+    std::cerr.flush();
+    std::clog.flush();
+}
+
 ios_base::Init::Init() {
-    Init_refcount++;
-    if(Init_refcount == 1) {
-        new (&cin) istream(&cin_streambuf);
-        new (&cout) ostream(&cout_streambuf);
-        new (&cerr) ostream(&cerr_streambuf);
-        new (&clog) ostream(&clog_streambuf);
-        cin.tie(&cout);
-        cerr.tie(&cout);
-    }
+    static __libstdlcxx_Init true_init; // Idea from LLVM libc++
 }
 
 ios_base::Init::~Init() {
-    Init_refcount--;
-    if(!Init_refcount) {
-        std::cout.flush();
-        std::cerr.flush();
-        std::clog.flush();
-    }
 }
 
 } // namespace std
