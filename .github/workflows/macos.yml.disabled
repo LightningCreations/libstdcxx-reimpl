@@ -1,0 +1,89 @@
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build_macos_release:
+    runs-on: macos-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2.3.0
+      with:
+        submodules: true 
+    - name: Clang Build
+      uses: LightningCreations/action-cmake-build@v1.2
+      with:
+        # C Compiler for toolchain
+        cc: clang # optional
+        # C++ Compiler for toolchain
+        cxx: clang++ # optional
+        update-submodules: true
+        parallel: 8
+        build-type: release 
+        build-dir: ${{runner.workspace}}/build-clang
+        run-test: true
+        ctest-options: --output-on-failure 
+  build_macos_debug:
+    runs-on: macos-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2.3.0
+      with:
+        submodules: true 
+    - name: Clang Build
+      uses: LightningCreations/action-cmake-build@v1.2
+      with:
+        # C Compiler for toolchain
+        cc: clang # optional
+        # C++ Compiler for toolchain
+        cxx: clang++ # optional
+        update-submodules: true
+        parallel: 8
+        build-type: debug 
+        build-dir: ${{runner.workspace}}/build-clang
+        run-test: true
+        ctest-options: --output-on-failure 
+  build_macos_minsizerel:
+    runs-on: macos-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2.3.0
+      with:
+        submodules: true 
+    - name: Install Dependencies
+      run: sudo apt install -y valgrind
+    - name: Clang Build
+      uses: LightningCreations/action-cmake-build@v1.2
+      with:
+        # C Compiler for toolchain
+        cc: clang # optional
+        # C++ Compiler for toolchain
+        cxx: clang++ # optional
+        update-submodules: true
+        parallel: 8
+        build-type: minsizerel 
+        build-dir: ${{runner.workspace}}/build-clang
+        run-test: true
+        ctest-options: --output-on-failure 
+  build_macos_relwithdebinfo:
+    runs-on: macos-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2.3.0
+      with:
+        submodules: true 
+    - name: Clang Build
+      uses: LightningCreations/action-cmake-build@v1.2
+      with:
+        # C Compiler for toolchain
+        cc: clang # optional
+        # C++ Compiler for toolchain
+        cxx: clang++ # optional
+        update-submodules: true
+        parallel: 8
+        build-type: relwithdebinfo 
+        build-dir: ${{runner.workspace}}/build-clang
+        run-test: true
+        ctest-options: --output-on-failure 

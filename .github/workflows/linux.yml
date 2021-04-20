@@ -1,0 +1,245 @@
+name: C/C++ CI Linux
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build_clang_release:
+    runs-on: ubuntu-20.04
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2.3.0
+      with:
+        submodules: true 
+    - name: Install Dependencies
+      run: sudo apt install -y valgrind
+    - name: Clang Build
+      uses: LightningCreations/action-cmake-build@v1.2
+      with:
+        # C Compiler for toolchain
+        cc: clang # optional
+        # C++ Compiler for toolchain
+        cxx: clang++ # optional
+        parallel: 8
+        build-type: release 
+        build-dir: ${{runner.workspace}}/build-clang
+        run-test: true
+        configure-options: -DLIBSTDCXX_REIMPL_VALGRIND_TESTS=ON
+        ctest-options: --output-on-failure 
+  build_gcc_release:
+    runs-on: ubuntu-20.04
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2.3.0
+      with:
+        submodules: true
+    - name: Install Dependencies
+      run: sudo apt install -y valgrind
+    - name: Clang Build
+      uses: LightningCreations/action-cmake-build@v1.2
+      with:
+        # C Compiler for toolchain
+        cc: gcc # optional
+        # C++ Compiler for toolchain
+        cxx: g++ # optional
+        build-type: release 
+        parallel: 8
+        build-dir: ${{runner.workspace}}/build-gcc
+        run-test: true
+        configure-options: -DLIBSTDCXX_REIMPL_VALGRIND_TESTS=ON
+        ctest-options: --output-on-failure 
+  build_clang_debug:
+    runs-on: ubuntu-20.04
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2.3.0
+      with:
+        submodules: true 
+    - name: Install Dependencies
+      run: sudo apt install -y valgrind
+    - name: Clang Build
+      uses: LightningCreations/action-cmake-build@v1.2
+      with:
+        # C Compiler for toolchain
+        cc: clang # optional
+        # C++ Compiler for toolchain
+        cxx: clang++ # optional
+        parallel: 8
+        build-type: debug 
+        build-dir: ${{runner.workspace}}/build-clang
+        run-test: true
+        configure-options: -DLIBSTDCXX_REIMPL_VALGRIND_TESTS=ON
+        ctest-options: --output-on-failure 
+  build_gcc_debug:
+    runs-on: ubuntu-20.04
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2.3.0
+      with:
+        submodules: true
+    - name: Install Dependencies
+      run: sudo apt install -y valgrind
+    - name: Clang Build
+      uses: LightningCreations/action-cmake-build@v1.2
+      with:
+        # C Compiler for toolchain
+        cc: gcc # optional
+        # C++ Compiler for toolchain
+        cxx: g++ # optional
+        build-type: debug 
+        parallel: 8
+        build-dir: ${{runner.workspace}}/build-gcc
+        run-test: true
+        configure-options: -DLIBSTDCXX_REIMPL_VALGRIND_TESTS=ON
+        ctest-options: --output-on-failure 
+  build_clang_minsizerel:
+    runs-on: ubuntu-20.04
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2.3.0
+      with:
+        submodules: true 
+    - name: Install Dependencies
+      run: sudo apt install -y valgrind
+    - name: Clang Build
+      uses: LightningCreations/action-cmake-build@v1.2
+      with:
+        # C Compiler for toolchain
+        cc: clang # optional
+        # C++ Compiler for toolchain
+        cxx: clang++ # optional
+        parallel: 8
+        build-type: minsizerel 
+        build-dir: ${{runner.workspace}}/build-clang
+        run-test: true
+        configure-options: -DLIBSTDCXX_REIMPL_VALGRIND_TESTS=ON
+        ctest-options: --output-on-failure 
+  build_gcc_minsizerel:
+    runs-on: ubuntu-20.04
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2.3.0
+      with:
+        submodules: true
+    - name: Install Dependencies
+      run: sudo apt install -y valgrind
+    - name: Clang Build
+      uses: LightningCreations/action-cmake-build@v1.2
+      with:
+        # C Compiler for toolchain
+        cc: gcc # optional
+        # C++ Compiler for toolchain
+        cxx: g++ # optional
+        build-type: minsizerel 
+        parallel: 8
+        build-dir: ${{runner.workspace}}/build-gcc
+        run-test: true
+        configure-options: -DLIBSTDCXX_REIMPL_VALGRIND_TESTS=ON
+        ctest-options: --output-on-failure
+  build_clang_relwithdebinfo:
+    runs-on: ubuntu-20.04
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2.3.0
+      with:
+        submodules: true 
+    - name: Install Dependencies
+      run: sudo apt install -y valgrind
+    - name: Clang Build
+      uses: LightningCreations/action-cmake-build@v1.2
+      with:
+        # C Compiler for toolchain
+        cc: clang # optional
+        # C++ Compiler for toolchain
+        cxx: clang++ # optional
+        parallel: 8
+        build-type: relwithdebinfo 
+        build-dir: ${{runner.workspace}}/build-clang
+        run-test: true
+        configure-options: -DLIBSTDCXX_REIMPL_VALGRIND_TESTS=ON
+        ctest-options: --output-on-failure 
+  build_gcc_relwithdebinfo:
+    runs-on: ubuntu-20.04
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2.3.0
+      with:
+        submodules: true
+    - name: Install Dependencies
+      run: sudo apt install -y valgrind
+    - name: Clang Build
+      uses: LightningCreations/action-cmake-build@v1.2
+      with:
+        # C Compiler for toolchain
+        cc: gcc # optional
+        # C++ Compiler for toolchain
+        cxx: g++ # optional
+        build-type: relwithdebinfo 
+        parallel: 8
+        build-dir: ${{runner.workspace}}/build-gcc
+        run-test: true
+        configure-options: -DLIBSTDCXX_REIMPL_VALGRIND_TESTS=ON
+        ctest-options: --output-on-failure 
+  build_gcc_asan:
+    runs-on: ubuntu-20.04
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2.3.0
+      with:
+        submodules: true
+    - name: Clang Build
+      uses: LightningCreations/action-cmake-build@v1.2
+      with:
+        # C Compiler for toolchain
+        cc: gcc # optional
+        # C++ Compiler for toolchain
+        cxx: g++ # optional
+        build-type: debug 
+        parallel: 8
+        build-dir: ${{runner.workspace}}/build-gcc
+        run-test: true
+        configure-options: -DLIBSTDCXX_REIMPL_SANITIZE=address
+        ctest-options: --output-on-failure 
+  build_gcc_tsan:
+    runs-on: ubuntu-20.04
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2.3.0
+      with:
+        submodules: true
+    - name: Clang Build
+      uses: LightningCreations/action-cmake-build@v1.2
+      with:
+        # C Compiler for toolchain
+        cc: gcc # optional
+        # C++ Compiler for toolchain
+        cxx: g++ # optional
+        build-type: debug 
+        parallel: 8
+        build-dir: ${{runner.workspace}}/build-gcc
+        run-test: true
+        configure-options: -DLIBSTDCXX_REIMPL_SANITIZE=thread
+        ctest-options: --output-on-failure 
+  build_gcc_ubsan:
+    runs-on: ubuntu-20.04
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2.3.0
+      with:
+        submodules: true
+    - name: Clang Build
+      uses: LightningCreations/action-cmake-build@v1.2
+      with:
+        # C Compiler for toolchain
+        cc: gcc # optional
+        # C++ Compiler for toolchain
+        cxx: g++ # optional
+        build-type: debug 
+        parallel: 8
+        build-dir: ${{runner.workspace}}/build-gcc
+        run-test: true
+        configure-options: -DLIBSTDCXX_REIMPL_SANITIZE=undefined
+        ctest-options: --output-on-failure 
