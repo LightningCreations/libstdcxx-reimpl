@@ -335,7 +335,11 @@ extern "C" _Unwind_Reason_Code __gxx_personality_v0(int version, _Unwind_Action 
     if(actions & _UA_SEARCH_PHASE) {
         return _URC_HANDLER_FOUND;
     } else if(actions & _UA_CLEANUP_PHASE) {
-        _Unwind_SetIP(context, _Unwind_GetRegionStart(context) + lsda.call_sites[0].landing_pad);
+        for(__lsda_call_site cs : lsda.call_sites) {
+            if(!cs.landing_pad) continue;
+            _Unwind_SetIP(context, _Unwind_GetRegionStart(context) + cs.landing_pad);
+            break;
+        }
         return _URC_INSTALL_CONTEXT;
     }
     return _URC_CONTINUE_UNWIND;
