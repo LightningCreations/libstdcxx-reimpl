@@ -2,7 +2,7 @@
 
 namespace std {
 
-ctype<char>::ctype(const mask *tbl, bool del, size_t refs): locale::facet(refs), ctype_base(), _M_del(del), _M_table(tbl) {
+ctype<char>::ctype(const mask *tbl, bool del, size_t refs): locale::facet(refs), ctype_base(), _M_del(del), _M_table(tbl), _M_widen_ok(false) {
 }
 
 ctype<char>::~ctype() {}
