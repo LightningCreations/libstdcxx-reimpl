@@ -11,6 +11,50 @@ if(HAS_STDLIB_LIBSTDCXX)
     add_compile_options("-stdlib=libstdc++")
 endif()
 
+option(LIBSTDCXX_REIMPL_VALGRIND_TESTS "Run additional tests under valgrind" OFF)
+
+if(LIBSTDCXX_REIMPL_VALGRIND_TESTS)
+    message(CHECK_START "Searching for valgrind")
+    find_program(VALGRIND valgrind)
+
+    if(VALGRIND STREQUAL "VALGRIND-NOTFOUND")
+        message(CHECK_FAIL "not found")
+        set(LIBSTDCXX_REIMPL_VALGRIND_TESTS OFF)
+        message(WARNING "Valgrind tests were requested, but valgrind was not found")
+    else()
+        message(CHECK_PASS "${VALGRIND}")
+    endif()
+endif()
+
+
+
+
+
+set(LIBSTDCXX_REIMPL_SANITIZE "" CACHE STRING "Enables Sanitizers on builds")
+
+if(LIBSTDCXX_REIMPL_SANITIZE)
+    if(NOT _LIBSTDCXX_REIMPL_TESTED_SANITIZERS STREQUAL LIBSTDCXX_REIMPL_SANITIZE)
+        try_compile(
+            _LCNIX_TEST_SANITIZERS_RESULT
+            ${CMAKE_CURRENT_BINARY_DIR}/sanitizers-test
+            ${CMAKE_CURRENT_SOURCE_DIR}/try_compile.c
+            COMPILE_DEFINITIONS "-fsanitize=${LIBSTDCXX_REIMPL_SANITIZE}"
+            LINK_OPTIONS "-fsanitize=${LIBSTDCXX_REIMPL_SANITIZE}"
+        )
+        if(NOT _LCNIX_TEST_SANITIZERS_RESULT)
+            message(FATAL_ERROR "Requested sanitizer ${LIBSTDCXX_REIMPL_SANITIZE} did not compile")
+        endif()
+        set(_LIBSTDCXX_REIMPL_TESTED_SANITIZERS ${LIBSTDCXX_REIMPL_SANITIZE} CACHE INTERNAL "")
+    endif()
+    if(LIBSTDCXX_REIMPL_VALGRIND_TESTS)
+        message(WARNING "Valgrind tests may not operate correctly when built with sanitizers")
+    endif()
+    message(STATUS "Building with the sanitizer ${LIBSTDCXX_REIMPL_SANITIZE}")
+    add_compile_options("$<$<NOT:$<CONFIG:Release>>:-fsanitize=${LIBSTDCXX_REIMPL_SANITIZE}>")
+    add_link_options("$<$<NOT:$<CONFIG:Release>>:-fsanitize=${LIBSTDCXX_REIMPL_SANITIZE}>")
+endif()
+
+
 enable_testing()
 add_subdirectory(test)
 
