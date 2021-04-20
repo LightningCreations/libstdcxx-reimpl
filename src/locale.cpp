@@ -55,7 +55,7 @@ locale::_Impl::_Impl(size_t _a) throw() {
     _M_facets_size = 1; // Temp
 }
 
-locale::_Impl::~_Impl() {
+locale::_Impl::~_Impl() throw() {
     delete _M_facets[0];
     delete[] _M_facets;
 }
