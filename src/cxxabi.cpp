@@ -111,11 +111,17 @@ extern "C" void* __cxa_allocate_exception(size_t thrown_size) {
     return static_cast<void*>(result+1);
 }
 
+static void *exception_obj;
+
 extern "C" void* __cxa_begin_catch(void *exception_object) {
-    return exception_object;
+    return exception_obj = exception_object;
 }
 
-extern "C" void __cxa_end_catch() {}
+extern "C" void __cxa_end_catch() {
+    void *old_obj = exception_obj;
+    ((std::exception*) exception_obj)->~exception(); // Manually running non-deleting destructors!
+    free(((__cxa_exception*) old_obj) - 1);
+}
 
 extern "C" __cxa_eh_globals* __cxa_get_globals() {
     return __cxa_globals;
@@ -337,6 +343,7 @@ extern "C" _Unwind_Reason_Code __gxx_personality_v0(int version, _Unwind_Action 
     } else if(actions & _UA_CLEANUP_PHASE) {
         for(__lsda_call_site cs : lsda.call_sites) {
             if(!cs.landing_pad) continue;
+            _Unwind_SetGR(context, __builtin_eh_return_data_regno(0), (uintptr_t) ue_header);
             _Unwind_SetIP(context, _Unwind_GetRegionStart(context) + cs.landing_pad);
             break;
         }
