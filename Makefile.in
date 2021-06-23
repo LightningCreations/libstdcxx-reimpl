@@ -1,0 +1,100 @@
+# Basic Variables
+
+srcdir = @srcdir@
+builddir = @builddir@
+
+CPPFLAGS := @CPPFLAGS@
+LDFLAGS := @LDFLAGS@
+
+CC := @CC@
+CFLAGS := @CFLAGS@
+
+CXX := @CXX@
+CXXFLAGS := @CXXFLAGS@
+
+LN_S := @LN_S@
+
+INSTALL := @INSTALL@
+
+MKDIR_P := @MKDIR_P@
+
+## Installation Directories
+
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+bindir = @bindir@
+libdir = @libdir@
+includedir = @includedir@
+sbindir = @sbindir@
+libexecdir = @libexecdir@
+datarootdir = @datarootdir@
+datadir = @datadir@
+mandir = @mandir@
+docdir = @docdir@
+infodir = @infodir@
+localedir = @localedir@
+sysconfdir = @sysconfdir@
+localstatedir = @localstatedir@
+runstatedir = @runstatedir@
+sharedstatedir = @sharedstatedir@
+
+# Package Specific Configuration
+
+INCLUDEDIRS = 
+
+DEFINES = 
+
+LIBRARIES = c 
+LIBDIRS = 
+EXTRA_LDFLAGS = -nodefaultlibs -Wl,--version-script,$(srcdir)/src/symver.ld
+
+EXTRA_CXXFLAGS = -fPIC
+EXTRA_CFLAGS = -fPIC
+
+OBJECTS = out/atomic.o out/chrono.o out/cxxabi.o out/exception.o out/future.o \
+			out/ios_base.o out/ios.o out/iostream.o out/istream.o out/list.o \
+			out/locale.o out/memory.o out/mutex.o out/new.o out/ostream.o \
+			out/random.o out/sstream.o out/stdexcept.o out/stl_tree.o out/streambuf.o \
+			out/system_error.o out/thread.o
+
+# Targets
+
+all: stamp
+
+
+.PHONY: all clean distclean install install-strip 
+
+stamp: libstdc++.so.6 #Subdir support
+	touch stamp 
+
+Makefile: $(srcdir)/Makefile.in config.status
+	./config.status Makefile
+
+config.status: $(srcdir)/configure
+	./config.status --recheck
+
+libstdc++.so.6: $(OBJECTS) $(srcdir)/src/symver.ld
+	$(CXX) $(CXXFLAGS) $(EXTRA_CXXFLAGS) $(LDFLAGS) $(EXTRA_LDFLAGS) $(LIBDIRS:%=-L%) -shared -Wl,-soname,$@ -o $@ $(OBJECTS) $(LIBRARIES:%=-l%)
+
+out/%.o: $(srcdir)/src/%.cpp out/ Makefile
+	$(CXX) $(CXXFLAGS) $(EXTRA_CXXFLAGS) $(CPPFLAGS) $(EXTRA_CPPFLAGS) $(DEFINES:%=-D%) $(INCLUDEDIRS:%=-I%) -frandom-seed=$@ -o $@ -c $<
+
+out/%.o: $(srcdir)/src/%.c out/ Makefile
+	$(CC) $(CFLAGS) $(EXTRA_CFLAGS) $(CPPFLAGS) $(EXTRA_CPPFLAGS) $(DEFINES:%=-D%) $(INCLUDEDIRS:%=-I%) -frandom-seed=$@ -o $@ -c $<
+
+out/:
+	$(MKDIR_P) out
+
+clean:
+	rm -r -f libstdc++.so.6 out/
+
+distclean: clean
+	rm -f Makefile config.status config.log config.cache 
+
+install:
+	$(INSTALL) -m 755 libstdc++.so.6 $(libdir)/
+	(cd $(libdir)/ && $(LN_S) libstdc++.so.6 libstdc++.so)
+
+install-strip:
+	$(INSTALL) -s -m 755 libstdc++.so.6 $(libdir)/
+	(cd $(libdir)/ && $(LN_S) libstdc++.so.6 libstdc++.so)
