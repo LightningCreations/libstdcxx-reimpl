@@ -20,4 +20,6 @@ bool error_category::equivalent(const error_code &code, int condition) const noe
     return *this == code.category() && code.value() == condition;
 }
 
+system_error::~system_error() noexcept {}
+
 }

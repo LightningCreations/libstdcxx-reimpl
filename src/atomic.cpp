@@ -7,4 +7,8 @@ bool __atomic_futex_unsigned_base::_M_futex_wait_until(unsigned *__addr, unsigne
     abort();
 }
 
+void __atomic_futex_unsigned_base::_M_futex_notify_all(unsigned *__addr) {
+    abort();
+}
+
 }

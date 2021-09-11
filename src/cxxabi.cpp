@@ -8,6 +8,11 @@
 #include <unwind.h>
 #include <vector>
 
+extern "C" void __cxa_rethrow() {
+    fprintf(stderr, "Rethrows aren't supported!\n");
+    std::terminate();
+}
+
 namespace std {
 
 void __throw_bad_alloc() {
@@ -17,6 +22,11 @@ void __throw_bad_alloc() {
 
 void __throw_bad_cast() {
     fprintf(stderr, "Bad cast\n");
+    std::terminate();
+}
+
+void __throw_bad_array_new_length() {
+    fprintf(stderr, "Bad array new length\n");
     std::terminate();
 }
 

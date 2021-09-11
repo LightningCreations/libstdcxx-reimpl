@@ -43,10 +43,14 @@ CXXABI_1.3.11 {
     __cxa_init_primary_exception;
 };
 
+CXXABI_1.3.13 {
+};
+
 GLIBCXX_3.4 {
   global:
     _ZNSt8ios_base4InitC1Ev;
     _Znam;
+    _ZSt15set_new_handlerPFvvE;
 };
 
 GLIBCXX_3.4.9 {
@@ -102,4 +106,9 @@ GLIBCXX_3.4.22 {
 GLIBCXX_3.4.26 {
   global:
     _ZNSt7__cxx1119basic_ostringstreamIcSt11char_traitsIcESaIcEEC1Ev;
+};
+
+GLIBCXX_3.4.29 {
+  global:
+    _ZSt28__throw_bad_array_new_lengthv;
 };
